@@ -12,5 +12,7 @@ export default defineUserConfig({
     repo: "https://github.com/pipu11qiao/pipu11qiao.github.io",
     navbar,
     sidebar,
+    editLink: false,
+    lastUpdatedText: "最近更新",
   }),
 });
