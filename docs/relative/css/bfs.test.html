@@ -1,0 +1,29 @@
+<html>
+  <head>
+    <style>
+      .par{
+        border: 1px solid #ddd;
+        padding: 30px;
+      }
+      .child1{
+        float: left;
+        width: 100px;
+        height: 30px;
+        background-color: green;
+      }
+      .child2{
+        float: right;
+        width: 100px;
+        height: 30px;
+        background-color: red;
+      }
+    </style>
+     </head>
+  <body>
+      <!-- //给这两个子div加浮动，浮动的结果，如果没有清除浮动的话，父div不会将下面两个div包裹，但还是在父div的范围之内。 -->
+    <div class="par">
+      <div class="child1"></div>
+      <div class="child2"></div>
+    </div>
+  </body>
+</html>
