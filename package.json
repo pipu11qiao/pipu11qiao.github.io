@@ -1,0 +1,14 @@
+{
+  "name": "pipu11qiao.github.io",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "wangyong16 <wangyong16@xiaomi.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "vuepress": "^2.0.0-beta.60"
+  },
+  "scripts": {
+    "docs:dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs"
+  }
+}
