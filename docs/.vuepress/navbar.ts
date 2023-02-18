@@ -8,7 +8,11 @@ export const navbar = [
   },
   {
     text: "前端基础",
-    children: [{ text: "Css", link: "/relative/css/" }],
+    children: [
+      { text: "js", link: "/relative/js/" },
+      { text: "css", link: "/relative/css/" },
+      { text: "html", link: "/relative/html/" },
+    ],
   },
   {
     text: "大前端",

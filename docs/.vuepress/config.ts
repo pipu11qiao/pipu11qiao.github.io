@@ -15,4 +15,9 @@ export default defineUserConfig({
     editLink: false,
     lastUpdatedText: "最近更新",
   }),
+  markdown: {
+    toc: {
+      level: [1, 2, 3, 4],
+    },
+  },
 });
