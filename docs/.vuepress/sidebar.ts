@@ -1,3 +1,11 @@
+let reactPath = "/code/react";
+const react = [
+  {
+    text: "原理",
+    children: [{ text: "fiber架构", link: `${reactPath}/fiber架构.md` }],
+  },
+];
+
 const vue3 = [
   {
     text: "原理",
@@ -8,7 +16,6 @@ const vue3 = [
     ],
   },
 ];
-
 
 let nodePath = "/relative/node";
 const node = [
@@ -28,7 +35,7 @@ const js = [
       { text: "js事件循环", link: `${jsPath}/js事件循环.md` },
       { text: "js常见编程题", link: `${jsPath}/js常见编程题.md` },
       { text: "v8垃圾回收", link: `${jsPath}/v8垃圾回收.md` },
-   ],
+    ],
   },
 ];
 
@@ -52,14 +59,13 @@ let htmlPath = "/relative/html";
 const html = [
   {
     text: "html相关知识",
-    children: [
-      { text: "重排和重绘", link: `${htmlPath}/重排和重绘.md` },
-   ],
+    children: [{ text: "重排和重绘", link: `${htmlPath}/重排和重绘.md` }],
   },
 ];
 
 export const sidebar = {
   "/code/vue3/": vue3,
+  [reactPath]: react,
   [jsPath]: js,
   [cssPath]: css,
   [htmlPath]: html,
