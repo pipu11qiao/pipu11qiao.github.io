@@ -73,7 +73,7 @@ HTTP/1.1中的pipeline中如果有一个请求block了，那么队列后请求�
 
 * 接下来，现在要建立一个HTTPS的连接，先是TCP的三次握手，然后是TLS的三次握手，要整出六次网络交互，一个链接才建好，虽说HTTP/1.1和HTTP/2的连接复用解决这个问题，但是基于UDP后，UDP也得要实现这个事。于是QUIC直接把TCP的和TLS的合并成了三次握手（对此，在HTTP/2的时候，是否默认开启TLS业内是有争议的，反对派说，TLS在一些情况下是不需要的，比如企业内网的时候，而支持派则说，TLS的那些开销，什么也不算了）。
 
-![http-request-over-tcp](./images/http-request-over-tcp-tls%402x-292x300.png)
+![http-request-over-tcp](./images/http-request-over-tcp-tls.png)
 
 所以，QUIC是一个在UDP之上的伪TCP +TLS +HTTP/2的多路复用的协议。
 
