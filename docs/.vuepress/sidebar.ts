@@ -48,6 +48,8 @@ const node = [
     text: "node相关知识",
     children: [
       { text: "nodejs事件循环", link: `${nodePath}/nodejs事件循环.md` },
+      { text: "模块", link: `${nodePath}/模块.md` },
+      { text: "koa洋葱模型", link: `${nodePath}/koa洋葱模型.md` },
     ],
   },
 ];
