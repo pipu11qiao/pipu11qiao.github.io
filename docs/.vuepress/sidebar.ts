@@ -2,7 +2,32 @@ let reactPath = "/code/react";
 const react = [
   {
     text: "原理",
-    children: [{ text: "fiber架构", link: `${reactPath}/fiber架构.md` }],
+    children: [
+      { text: "代数效应", link: `${reactPath}/代数效应.md` },
+      { text: "react设计理念", link: `${reactPath}/2.react设计理念.md` },
+      { text: "源码架构", link: `${reactPath}/3.react源码架构.md` },
+      { text: "源码目录和调试", link: `${reactPath}/4.源码目录和调试.md` },
+      { text: "jsx和核心api", link: `${reactPath}/5.jsx和核心api.md` },
+      {
+        text: "legacy和concurrent",
+        link: `${reactPath}/6.legacy和concurrent.md`,
+      },
+      { text: "fiber架构", link: `${reactPath}/7.fiber架构.md` },
+      { text: "render阶段", link: `${reactPath}/8.render阶段.md` },
+      { text: "diff算法", link: `${reactPath}/9.diff算法.md` },
+      { text: "commit阶段", link: `${reactPath}/10.commit阶段.md` },
+      { text: "生命周期调用顺序", link: `${reactPath}/11.生命周期调用顺序.md` },
+
+      { text: "状态更新流程", link: `${reactPath}/12.状态更新流程.md` },
+      { text: "hooks源码", link: `${reactPath}/13.hooks源码.md` },
+      { text: "手写hooks", link: `${reactPath}/14.手写hooks.md` },
+      { text: "shedular-lane", link: `${reactPath}/15.shedular-lane.md` },
+      { text: "concurrent模式", link: `${reactPath}/16.concurrent模式.md` },
+      { text: "context", link: `${reactPath}/17.context.md` },
+      { text: "调度原理", link: `${reactPath}/调度原理.md` },
+      { text: "代数效应", link: `${reactPath}/代数效应.md` },
+      { text: "总结", link: `${reactPath}/总结.md` },
+    ],
   },
 ];
 
@@ -51,6 +76,7 @@ const css = [
       { text: "css选择器", link: `${cssPath}/css选择器.md` },
       { text: "css权重", link: `${cssPath}/css权重.md` },
       { text: "div居中", link: `${cssPath}/div居中.md` },
+      { text: "移动端适配", link: `${cssPath}/移动端适配.md` },
     ],
   },
 ];
@@ -59,7 +85,26 @@ let htmlPath = "/relative/html";
 const html = [
   {
     text: "html相关知识",
-    children: [{ text: "重排和重绘", link: `${htmlPath}/重排和重绘.md` }],
+    children: [
+      { text: "重排和重绘", link: `${htmlPath}/重排和重绘.md` },
+      { text: "浏览器架构", link: `${htmlPath}/chrome浏览器架构.md` },
+      { text: "worker", link: `${htmlPath}/worker.md` },
+      { text: "缓存", link: `${htmlPath}/缓存.md` },
+    ],
+  },
+];
+let networkPath = "/relative/network";
+const network = [
+  {
+    text: "网络相关知识",
+    children: [
+      { text: "http", link: `${networkPath}/http.md` },
+      { text: "https", link: `${networkPath}/https.md` },
+      { text: "http2", link: `${networkPath}/http2.md` },
+      { text: "http3", link: `${networkPath}/http3.md` },
+      { text: "websocket", link: `${networkPath}/websocket.md` },
+      { text: "udp", link: `${networkPath}/udp.md` },
+    ],
   },
 ];
 
@@ -69,5 +114,6 @@ export const sidebar = {
   [jsPath]: js,
   [cssPath]: css,
   [htmlPath]: html,
+  [networkPath]: network,
   [nodePath]: node,
 };

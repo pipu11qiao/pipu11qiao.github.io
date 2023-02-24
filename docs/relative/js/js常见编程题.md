@@ -166,6 +166,33 @@ function createRequest(config = {}) {
 }
 ```
 
+## sendRequest
+
+```javascript
+async function sendRequest(urls, max, callback) {
+  let res = [];
+  let len = urls.length;
+  let finishedCount = 0;
+  let index = 0;
+  async function getUrl(url, curIndex) {
+    let cur = await myFetch(url);
+    res[curIndex] = cur;
+    finishedCount++;
+    if (finishedCount === len) {
+      callback(res);
+    }
+    if (index < len) {
+      getUrl(urls[index], index);
+      index++;
+    }
+  }
+  for (let i = 0; i < len && i < max; i++) {
+    getUrl(urls[i], i);
+    index++;
+  }
+}
+```
+
 ## 模版引擎
 
 ```javascript

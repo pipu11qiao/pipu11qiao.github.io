@@ -12,6 +12,7 @@ export const navbar = [
       { text: "js", link: "/relative/js/" },
       { text: "css", link: "/relative/css/" },
       { text: "html", link: "/relative/html/" },
+      { text: "network", link: "/relative/network/" },
     ],
   },
   {
