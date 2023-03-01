@@ -139,7 +139,7 @@ const performance = [
       },
       {
         text: "常见前端安全问题及解决方案",
-        link: `${performancePath}/网页图片加载优化方案常见前端安全问题及解决方案.md`,
+        link: `${performancePath}/常见前端安全问题及解决方案.md`,
       },
     ],
   },
