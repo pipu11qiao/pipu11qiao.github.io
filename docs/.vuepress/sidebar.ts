@@ -111,6 +111,7 @@ const network = [
       { text: "udp", link: `${networkPath}/udp.md` },
       { text: "type_of_url", link: `${networkPath}/type_of_url.md` },
       { text: "tcp", link: `${networkPath}/tcp.md` },
+      { text: "简单请求和复杂请求", link: `${networkPath}/简单请求和复杂请求.md` },
     ],
   },
 ];
