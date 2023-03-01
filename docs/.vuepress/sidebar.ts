@@ -51,7 +51,7 @@ const js = [
       { text: "v8垃圾回收", link: `${jsPath}/v8垃圾回收.md` },
       { text: "js知识点", link: `${jsPath}/js知识点.md` },
       { text: "async-await原理", link: `${jsPath}/async-await原理.md` },
-      { text: "作用域", link: `${jsPath}/作用域.md` },
+      { text: "作用域和闭包", link: `${jsPath}/作用域和闭包.md` },
     ],
   },
 ];
