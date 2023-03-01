@@ -10,6 +10,7 @@ export const navbar = [
     text: "前端基础",
     children: [
       { text: "js", link: "/relative/js/" },
+      { text: "ts", link: "/relative/ts/" },
       { text: "css", link: "/relative/css/" },
       { text: "html", link: "/relative/html/" },
       { text: "network", link: "/relative/network/" },
@@ -17,7 +18,11 @@ export const navbar = [
   },
   {
     text: "大前端",
-    children: [{ text: "Node", link: "/relative/node/" }],
+    children: [
+      { text: "Node", link: "/relative/node/" },
+      { text: "performance", link: "/relative/performance/" },
+      { text: "design-pattern", link: "/relative/design-pattern/" },
+    ],
   },
   {
     text: "常见问题",

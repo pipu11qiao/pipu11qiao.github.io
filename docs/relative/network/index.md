@@ -7,3 +7,5 @@
 * [http3](./http3.md)
 * [websocket](./websocket.md)
 * [udp](./udp.md)
+* [type_of_url](./type_of_url.md)
+* [tcp](./tcp.md)

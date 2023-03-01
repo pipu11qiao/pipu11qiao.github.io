@@ -3,7 +3,6 @@ const react = [
   {
     text: "原理",
     children: [
-      { text: "代数效应", link: `${reactPath}/代数效应.md` },
       { text: "react设计理念", link: `${reactPath}/2.react设计理念.md` },
       { text: "源码架构", link: `${reactPath}/3.react源码架构.md` },
       { text: "源码目录和调试", link: `${reactPath}/4.源码目录和调试.md` },
@@ -42,18 +41,6 @@ const vue3 = [
   },
 ];
 
-let nodePath = "/relative/node";
-const node = [
-  {
-    text: "node相关知识",
-    children: [
-      { text: "nodejs事件循环", link: `${nodePath}/nodejs事件循环.md` },
-      { text: "模块", link: `${nodePath}/模块.md` },
-      { text: "koa洋葱模型", link: `${nodePath}/koa洋葱模型.md` },
-    ],
-  },
-];
-
 let jsPath = "/relative/js";
 const js = [
   {
@@ -62,7 +49,18 @@ const js = [
       { text: "js事件循环", link: `${jsPath}/js事件循环.md` },
       { text: "js常见编程题", link: `${jsPath}/js常见编程题.md` },
       { text: "v8垃圾回收", link: `${jsPath}/v8垃圾回收.md` },
+      { text: "js知识点", link: `${jsPath}/js知识点.md` },
+      { text: "async-await原理", link: `${jsPath}/async-await原理.md` },
+      { text: "作用域", link: `${jsPath}/作用域.md` },
     ],
+  },
+];
+
+let tsPath = "/relative/ts";
+const ts = [
+  {
+    text: "ts相关知识",
+    children: [{ text: "ts1", link: `${tsPath}/ts1.md` }],
   },
 ];
 
@@ -79,6 +77,11 @@ const css = [
       { text: "css权重", link: `${cssPath}/css权重.md` },
       { text: "div居中", link: `${cssPath}/div居中.md` },
       { text: "移动端适配", link: `${cssPath}/移动端适配.md` },
+      {
+        text: "clientHeight,offsetHeight,scrollHeight",
+        link: `${cssPath}/clientHeight,offsetHeight,scrollHeight.md`,
+      },
+      { text: "matric", link: `${cssPath}/matric.md` },
     ],
   },
 ];
@@ -106,6 +109,75 @@ const network = [
       { text: "http3", link: `${networkPath}/http3.md` },
       { text: "websocket", link: `${networkPath}/websocket.md` },
       { text: "udp", link: `${networkPath}/udp.md` },
+      { text: "type_of_url", link: `${networkPath}/type_of_url.md` },
+      { text: "tcp", link: `${networkPath}/tcp.md` },
+    ],
+  },
+];
+
+let nodePath = "/relative/node";
+const node = [
+  {
+    text: "node相关知识",
+    children: [
+      { text: "nodejs事件循环", link: `${nodePath}/nodejs事件循环.md` },
+      { text: "模块", link: `${nodePath}/模块.md` },
+      { text: "koa洋葱模型", link: `${nodePath}/koa洋葱模型.md` },
+    ],
+  },
+];
+
+let performancePath = "/relative/performance";
+const performance = [
+  {
+    text: "性能相关知识",
+
+    children: [
+      {
+        text: "网页图片加载优化方案",
+        link: `${performancePath}/网页图片加载优化方案.md`,
+      },
+      {
+        text: "常见前端安全问题及解决方案",
+        link: `${performancePath}/网页图片加载优化方案常见前端安全问题及解决方案.md`,
+      },
+    ],
+  },
+];
+let designPatternPath = "/relative/design-pattern";
+const designPattern = [
+  {
+    text: "设计模式知识",
+
+    children: [
+      {
+        text: "面试之设计模式",
+        link: `${designPatternPath}/面试之设计模式.md`,
+      },
+      {
+        text: "发布订阅和观察者",
+        link: `${designPatternPath}/发布订阅和观察者.md`,
+      },
+      {
+        text: "职责链模式",
+        link: `${designPatternPath}/职责链模式.md`,
+      },
+    ],
+  },
+];
+
+let problemPath = "/problem";
+const problem = [
+  {
+    text: "问题清单",
+    children: [
+      {
+        text: "react-button事件触发问题",
+        link: `${networkPath}/react-button事件触发问题.md`,
+      },
+      { text: "下载设置", link: `${networkPath}/download_direct.md` },
+      { text: "open打开异步链接", link: `${networkPath}/open打开异步链接.md` },
+      { text: "一些问题", link: `${networkPath}/一些问题.md` },
     ],
   },
 ];
@@ -114,8 +186,12 @@ export const sidebar = {
   "/code/vue3/": vue3,
   [reactPath]: react,
   [jsPath]: js,
+  [tsPath]: ts,
   [cssPath]: css,
   [htmlPath]: html,
   [networkPath]: network,
   [nodePath]: node,
+  [performancePath]: performance,
+  [designPatternPath]: designPattern,
+  [problemPath]: problem,
 };
