@@ -995,3 +995,324 @@ const page: Record<IPage, IPageinfo> = {
 }
 ```
 ### 6. Exclude<T, U>
+
+Exclude 就是从一个联合类型中排除掉属于另一个联合类型的子集，下面是其声明的形式：
+```typescript
+/**
+ * Exclude from T those types that are assignable to U
+ */
+type Exclude<T, U> = T extends U ? never : T;
+```
+使用示例如下：
+```typescript
+interface IPerson {
+  name: string;
+  age: number;
+  height: number;
+}
+
+const person: Exclude<IPerson, "age" | "sex"> = {
+  name: "zhangsan";
+  height: 180;
+}
+```
+
+7. Omit<T, K extends keyof any> 
+
+上面的Pick 和 Exclude 都是最基础基础的工具泛型，很多时候用 Pick 或者 Exclude 还不如直接写类型更直接。而 Omit 就基于这两个来做的一个更抽象的封装，它允许从一个对象中剔除若干个属性，剩下的就是需要的新类型。下面是它的声明形式：
+
+```typescript
+/**
+ * Construct a type with the properties of T except for those in type K.
+ */
+type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>;
+```
+
+使用示例如下：
+
+```typescript
+interface IPerson {
+  name: string;
+  age: number;
+  height: number;
+}
+
+const person: Omit<IPerson, "age" | "height"> = {
+  name: "zhangsan";
+}
+```
+
+8. ReturnType
+ReturnType会返回函数返回值的类型，其声明形式如下：
+```typescript
+/**
+ * Obtain the return type of a function type
+ */
+type ReturnType<T extends (...args: any) => any> = T extends (...args: any) => infer R ? R : any;
+```
+
+使用示例如下：
+```typescript
+function foo(type): boolean {
+  return type === 0
+}
+
+type FooType = ReturnType<typeof foo>
+```
+七、Axios 封装
+在React项目中，我们经常使用Axios库进行数据请求，Axios 是基于 Promise 的 HTTP 库，可以在浏览器和 node.js 中使用。Axios 具备以下特性：
+
+* 从浏览器中创建 XMLHttpRequests；
+* 从 node.js 创建 HTTP 请求；
+* 支持 Promise API；
+* 拦截请求和响应；
+* 转换请求数据和响应数据；
+* 取消请求；
+* 自动转换 JSON 数据；
+* 客户端支持防御 XSRF。
+* Axios的基本使用就不再多介绍了。为了更好地调用，做一些全局的拦截，通常会对Axios进行封装，下面就使用TypeScript对Axios进行简单封装，使其同时能够有很好的类型支持。Axios是自带声明文件的，所以我们无需额外的操作。
+​
+下面来看基本的封装：
+```typescript
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosPromise,AxiosResponse } from 'axios'; // 引入axios和定义在node_modules/axios/index.ts文件里的类型声明
+
+ // 定义接口请求类，用于创建axios请求实例
+class HttpRequest {
+  // 接收接口请求的基本路径
+  constructor(public baseUrl: string) { 
+    this.baseUrl = baseUrl;
+  }
+  
+  // 调用接口时调用实例的这个方法，返回AxiosPromise
+  public request(options: AxiosRequestConfig): AxiosPromise { 
+    // 创建axios实例，它是函数，同时这个函数包含多个属性
+    const instance: AxiosInstance = axios.create() 
+    // 合并基础路径和每个接口单独传入的配置，比如url、参数等
+    options = this.mergeConfig(options) 
+    // 调用interceptors方法使拦截器生效
+    this.interceptors(instance, options.url) 
+    // 返回AxiosPromise
+    return instance(options) 
+  }
+  
+  // 用于添加全局请求和响应拦截
+  private interceptors(instance: AxiosInstance, url?: string) { 
+    // 请求和响应拦截
+  }
+  
+  // 用于合并基础路径配置和接口单独配置
+  private mergeConfig(options: AxiosRequestConfig): AxiosRequestConfig { 
+    return Object.assign({ baseURL: this.baseUrl }, options);
+  }
+}
+export default HttpRequest;
+```
+通常baseUrl在开发环境的和生产环境的路径是不一样的，所以可以根据当前是开发环境还是生产环境做判断，应用不同的基础路径。这里要写在一个配置文件里：
+```typescript
+export default {
+    api: {
+        devApiBaseUrl: '/test/api/xxx',
+        proApiBaseUrl: '/api/xxx',
+    },
+};
+```
+
+之后就可以将apiBaseUrl作为默认值传入HttpRequest的参数：
+```typescript
+class HttpRequest { 
+  constructor(public baseUrl: string = apiBaseUrl) { 
+    this.baseUrl = baseUrl;
+  }
+```
+
+接下来可以完善一下拦截器类，在类中interceptors方法内添加请求拦截器和响应拦截器，实现对所有接口请求的统一处理：
+```typescript
+private interceptors(instance: AxiosInstance, url?: string) {
+  	// 请求拦截
+    instance.interceptors.request.use((config: AxiosRequestConfig) => {
+      // 接口请求的所有配置，可以在axios.defaults修改配置
+      return config
+    },
+    (error) => {
+      return Promise.reject(error)
+    })
+ 	
+  	// 响应拦截
+    instance.interceptors.response.use((res: AxiosResponse) => {
+      const { data } = res 
+      const { code, msg } = data
+      if (code !== 0) {
+        console.error(msg) 
+      }
+      return res
+    },
+    (error) => { 
+      return Promise.reject(error)
+    })
+  }
+```
+到这里封装的就差不多了，一般服务端会将状态码、提示信息和数据封装在一起，然后作为数据返回，所以所有请求返回的数据格式都是一样的，所以就可以定义一个接口来指定返回的数据结构，可以定义一个接口：
+
+```typescript
+export interface ResponseData {
+  code: number
+  data?: any
+  msg: string
+}
+```
+接下来看看使用TypeScript封装的Axios该如何使用。可以先定义一个请求实例：
+```typescript
+import HttpRequest from '@/utils/axios'
+export * from '@/utils/axios'
+export default new HttpRequest()
+```
+这里把请求类导入进来，默认导出这个类的实例。之后创建一个登陆接口请求方法：
+```typescript
+import axios, { ResponseData } from './index'
+import { AxiosPromise } from 'axios'
+
+interface ILogin {
+  user: string;
+  password: number | string
+}
+
+export const loginReq = (data: ILogin): AxiosPromise<ResponseData> => {
+  return axios.request({
+    url: '/api/user/login',
+    data,
+    method: 'POST'
+  })
+}
+```
+这里封装登录请求方法loginReq，他的参数必须是我们定义的ILogin接口的类型。这个方法返回一个类型为AxiosPromise的Promise，AxiosPromise是axios声明文件内置的类型，可以传入一个泛型变量参数，用于指定返回的结果中data字段的类型。
+​
+接下来可以调用一下这个登录的接口：
+
+```typescript
+import { loginReq } from '@/api/user'
+
+const Home: FC = () => {
+  const login = (params) => {
+  	loginReq(params).then((res) => {
+    	console.log(res.data.code)
+  	})	
+  }  
+}
+```
+通过这种方式，当我们调用loginReq接口时，就会提示我们，参数的类型是ILogin，需要传入几个参数。这样编写代码的体验就会好很多。
+
+# 八. 其他
+
+### 1. import React 
+
+在React项目中使用TypeScript时，普通组件文件后缀为.tsx，公共方法文件后缀为.ts。在. tsx 文件中导入 React 的方式如下：
+```typescript
+import * as React from 'react'
+import * as ReactDOM from 'react-dom'
+```
+这是一种面向未来的导入方式，如果想在项目中使用以下导入方式：
+
+```typescript
+import React from "react";
+import ReactDOM from "react-dom";
+```
+就需要在tsconfig.json配置文件中进行如下配置：
+```typescript
+"compilerOptions": {
+    // 允许默认从没有默认导出的模块导入。
+    "allowSyntheticDefaultImports": true,
+}
+```
+
+### 2. Types or Interfaces？
+
+我们可以使用types或者Interfaces来定义类型吗，那么该如何选择他俩呢？建议如下：
+* 在定义公共 API 时(比如编辑一个库）使用 interface，这样可以方便使用者继承接口，这样允许使用最通过声明合并来扩展它们；
+* 在定义组件属性（Props）和状态（State）时，建议使用 type，因为 type 的约束性更强。
+
+interface 和 type 在 ts 中是两个不同的概念，但在 React 大部分使用的 case 中，interface 和 type 可以达到相同的功能效果，type 和 interface 最大的区别是：type 类型不能二次编辑，而 interface 可以随时扩展：
+```typescript
+interface Animal {
+  name: string
+}
+
+// 可以继续在原属性基础上，添加新属性：color
+interface Animal {
+  color: string
+}
+
+type Animal = {
+  name: string
+}
+// type类型不支持属性扩展
+// Error: Duplicate identifier 'Animal'
+type Animal = {
+  color: string
+}
+```
+
+type对于联合类型是很有用的，比如：type Type = TypeA | TypeB。而interface更适合声明字典类行，然后定义或者扩展它。
+
+3. 懒加载类型
+
+如果我们想在React router中使用懒加载，React也为我们提供了懒加载方法的类型，来看下面的例子：
+```typescript
+export interface RouteType {
+    pathname: string;
+    component: LazyExoticComponent<any>;
+    exact: boolean;
+    title?: string;
+    icon?: string;
+    children?: RouteType[];
+}
+export const AppRoutes: RouteType[] = [
+    {
+        pathname: '/login',
+        component: lazy(() => import('../views/Login/Login')),
+        exact: true
+    },
+    {
+        pathname: '/404',
+        component: lazy(() => import('../views/404/404')),
+        exact: true,
+    },
+    {
+        pathname: '/',
+        exact: false,
+        component: lazy(() => import('../views/Admin/Admin'))
+    }
+]
+
+```
+### 4. 类型断言
+类型断言（Type Assertion）可以用来手动指定一个值的类型。在React项目中，断言还是很有用的，。有时候推断出来的类型并不是真正的类型，很多时候我们可能会比TS更懂我们的代码，所以可以使用断言（使用as关键字）来定义一个值得类型。
+​
+来看下面的例子：
+
+```typescript
+const getLength = (target: string | number): number => {
+  if (target.length) { // error 类型"string | number"上不存在属性"length"
+    return target.length; // error  类型"number"上不存在属性"length"
+  } else {
+    return target.toString().length;
+  }
+};
+```
+当TypeScript不确定一个联合类型的变量到底是哪个类型时，就只能访问此联合类型的所有类型里共有的属性或方法，所以现在加了对参数target和返回值的类型定义之后就会报错。这时就可以使用断言，将target的类型断言成string类型：
+```typescript
+const getStrLength = (target: string | number): number => {
+  if ((target as string).length) {      
+    return (target as string).length; 
+  } else {
+    return target.toString().length;
+  }
+};
+```
+需要注意，类型断言并不是类型转换，断言成一个联合类型中不存在的类型是不允许的。​
+
+再来看一个例子，在调用一个方法时传入参数：
+这里就提示我们这个参数可能是undefined，而通过业务知道这个值是一定存在的，所以就可以将它断言成数字：data?.subjectId as number
+​
+除此之外，上面所说的标签类型、组件类型、时间类型都可以使用断言来指定给一些数据，还是要根据实际的业务场景来使用。
+​
+感悟：使用类型断言真的能解决项目中的很多报错~
