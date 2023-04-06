@@ -44,7 +44,7 @@ processTpl 方法
 
 
 * 去掉html的注释
-* 处理html中<link>元素相关的逻辑
+* 处理html中\<link\>元素相关的逻辑
 
 ```javascript
 		.replace(LINK_TAG_REGEX, match => {
@@ -56,7 +56,7 @@ processTpl 方法
     * 检查是否是样式文件，如果是尝试获取地址，有地址的如果是忽略直接替代成忽略标签，不是添加进styles数组，替代成样式标签。
     * 如果不满足样式文件，查看是否是预加载（有地址并且不是字体文件）,替代成预加载样式标签
     * 都不符合，不做处理
-* 检查<style>元素，如果是忽略，替代成忽略标签
+* 检查<\style\>元素，如果是忽略，替代成忽略标签
 * 检查script 元素，替代
 
 ```javascript

@@ -598,7 +598,7 @@ user.name = "Pete"; // 显示 "SET name=Pete"
 
 * Reflect.get 读取一个对象属性。
 * Reflect.set 写入一个对象属性，如果写入成功则返回 true，否则返回 false。
-这样，一切都很简单：如果一个捕捉器想要将调用转发给对象，则只需使用相同的参数调用 Reflect.<method> 就足够了。
+这样，一切都很简单：如果一个捕捉器想要将调用转发给对象，则只需使用相同的参数调用 Reflect.\<method\> 就足够了。
 
 在大多数情况下，我们可以不使用 Reflect 完成相同的事情，例如，用于读取属性的 Reflect.get(target, prop, receiver) 可以被替换为 target[prop]。尽管有一些细微的差别。
 
