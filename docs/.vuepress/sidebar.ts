@@ -28,6 +28,12 @@ const react = [
       { text: "总结", link: `${reactPath}/总结.md` },
     ],
   },
+  {
+    text: "redux",
+    children: [
+      { text: "redux-tookit", link: `${reactPath}/redux/redux-toolkit.md` },
+    ],
+  },
 ];
 
 const vue3 = [
@@ -113,7 +119,10 @@ const network = [
       { text: "udp", link: `${networkPath}/udp.md` },
       { text: "type_of_url", link: `${networkPath}/type_of_url.md` },
       { text: "tcp", link: `${networkPath}/tcp.md` },
-      { text: "简单请求和复杂请求", link: `${networkPath}/简单请求和复杂请求.md` },
+      {
+        text: "简单请求和复杂请求",
+        link: `${networkPath}/简单请求和复杂请求.md`,
+      },
     ],
   },
 ];
