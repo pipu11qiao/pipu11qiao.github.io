@@ -38,8 +38,29 @@ class Parser {
       dependencies,
     };
   }
+  initLoader(filePath, config) {
+    let source = fs.readFileSync(filePath, "utf-8");
+    const rules = config.module && config.module.rules; // 获取rules数组
+    rules &&
+      rules.forEach((rule) => {
+        // 遍历rule
+        const { test, use } = rule; // 获取匹配规则和loader数组
+        let l = use.length - 1;
+        if (test.test(filePath)) {
+          function execLoader() {
+            const loader = require(use[l--]); // 从最后一个loader执行，loader的执行顺序是从右到左
+            source = loader(source);
+            if (l >= 0) {
+              execLoader();
+            }
+          }
+          execLoader();
+        }
+      });
+    return source;
+  }
   genAST(filePath, config) {
-    const sourceCode = fs.readFileSync(filePath, "utf-8");
+    const sourceCode = this.initLoader(filePath, config);
     const ast = babelParser.parse(sourceCode, {
       sourceType: "module", // 解析es6模块
     });
