@@ -2,6 +2,7 @@ const parser = require("./parser");
 const resolve = require("enhanced-resolve");
 const path = require("path");
 const util = require("./util");
+const fs = require("fs");
 class Compiler {
   constructor(config) {
     this.config = config;
@@ -31,12 +32,40 @@ class Compiler {
     };
     // 遍历文件的依赖数组，递归执行buildModule方法，直到遍历完所有的依赖文件，这时this.modules中将是项目所有依赖module的集合
     dependencies.forEach((dependency) => {
-      const absPath = resolve(this.execPath, dependency);
+      const absPath = resolve.sync(this.execPath, dependency);
       this.buildModule(absPath);
     });
   }
   // 生成打包文件
-  emitFile() {}
+  emitFile() {
+    const output = path.resolve(this.output.path, this.output.filename);
+    let modulesCode = "";
+    Object.keys(this.modules).map((key) => {
+      modulesCode += `'${key}':function(require,module,exports){
+        ${this.modules[key].code}
+      },`;
+    });
+    const bundle = `(function (modules) {
+      var installedModules = {};
+      function require(finename) {
+        if (installedModules[finename]) {
+          return installedModules[finename].exports;
+        }
+        var fn = modules[finename];
+        var module = (installedModules[finename] = {
+          exports: {},
+        });
+        fn(require, module, module.exports);
+        return module.exports;
+      }
+      require('${this.entry}')
+    })({
+      ${modulesCode}
+    });
+    `;
+    debugger;
+    fs.writeFileSync(output, bundle, "utf-8");
+  }
 }
 
 module.exports = Compiler;
