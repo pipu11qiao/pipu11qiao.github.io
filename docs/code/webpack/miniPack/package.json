@@ -1,0 +1,14 @@
+{
+  "name": "minipack",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "myPack": "node ./lib/my-pack.js --config webpack.config.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "enhanced-resolve": "^5.15.0"
+  }
+}
