@@ -1,5 +1,7 @@
 const parser = require("./parser");
 const resolve = require("enhanced-resolve");
+const path = require("path");
+const util = require("./util");
 class Compiler {
   constructor(config) {
     this.config = config;
@@ -13,7 +15,16 @@ class Compiler {
     this.emitFile();
   }
   // 构建依赖关系图
-  buildModule(path) {}
+  buildModule(filePath) {
+    const key = util.getKey(this.execPath, filePath);
+    if (this.modules[key]) {
+      return;
+    }
+
+    // 解析文件，得到转换的es5的文件源码和它的依赖数组
+    const {} = parser.parse(filePath, this.config);
+    resolve(this.execPath);
+  }
   // 生成打包文件
   emitFile() {}
 }

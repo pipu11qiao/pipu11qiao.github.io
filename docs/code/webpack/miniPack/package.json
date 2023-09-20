@@ -9,6 +9,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@babel/core": "^7.22.20",
+    "@babel/parser": "^7.22.16",
+    "@babel/traverse": "^7.22.20",
     "enhanced-resolve": "^5.15.0"
   }
 }
