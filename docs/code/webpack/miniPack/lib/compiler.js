@@ -3,6 +3,7 @@ const resolve = require("enhanced-resolve");
 const path = require("path");
 const util = require("./util");
 const fs = require("fs");
+const { SyncHook } = require("tapable");
 class Compiler {
   constructor(config) {
     this.config = config;
@@ -11,10 +12,21 @@ class Compiler {
     this.execPath = process.cwd(); // 当前工作目录
     this.config.root = this.execPath;
     this.modules = Object.create(null); // 基于module依赖得到集合
+    this.hooks = {
+      emit: new SyncHook(), // 生成资源到 output 文件之前触发
+      afterEmit: new SyncHook(), // 生成资源到 output 文件之后触发
+    };
+    if (Array.isArray(config.plugins)) {
+      config.plugins.forEach((item) => {
+        item.apply(this);
+      });
+    }
   }
   run() {
     this.buildModule(resolve.sync(this.execPath, this.entry));
+    this.hooks.emit.call();
     this.emitFile();
+    this.hooks.afterEmit.call();
   }
   // 构建依赖关系图
   buildModule(filePath) {
@@ -63,7 +75,6 @@ class Compiler {
       ${modulesCode}
     });
     `;
-    debugger;
     fs.writeFileSync(output, bundle, "utf-8");
   }
 }
