@@ -1,0 +1,8 @@
+node_modules
+.umi
+.umi-production
+src/services/model
+tmp/
+mock
+.husky
+.git
