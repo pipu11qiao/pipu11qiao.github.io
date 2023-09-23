@@ -34,7 +34,6 @@ function camelCaseApiFileName(interfaceInfo) {
     pattern: 'pinyin',
     toneType: 'none',
   });
-  // console.log(camelCase(categoryName));
   return `${PATH_API_MODULES}/${camelCase(projectName)}/${camelCase(
     categoryName,
   )}.ts`;

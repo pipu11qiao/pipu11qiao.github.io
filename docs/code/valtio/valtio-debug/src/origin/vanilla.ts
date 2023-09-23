@@ -68,6 +68,11 @@ const proxyStateMap = new WeakMap<ProxyObject, ProxyState>();
 const refSet = new WeakSet();
 
 const buildProxyFunction = (
+  objectIs = Object.is,
+
+  newProxy = <T extends object>(target: T, handler: ProxyHandler<T>): T =>
+    new Proxy(target, handler),
+
   canProxy = (x: unknown) =>
     isObject(x) &&
     !refSet.has(x) &&
@@ -98,15 +103,22 @@ const buildProxyFunction = (
     }
   },
 
+  snapCache = new WeakMap<object, [version: number, snap: unknown]>(),
+
   createSnapshot: CreateSnapshot = <T extends object>(
     target: T,
     version: number,
     handlePromise: HandlePromise = defaultHandlePromise,
   ): T => {
+    const cache = snapCache.get(target);
+    if (cache?.[0] === version) {
+      return cache[1] as T;
+    }
     const snap: any = Array.isArray(target)
       ? []
       : Object.create(Object.getPrototypeOf(target));
     markToTrack(snap, true); // mark to track
+    snapCache.set(target, [version, snap]);
     Reflect.ownKeys(target).forEach((key) => {
       if (Object.getOwnPropertyDescriptor(snap, key)) {
         // Only the known case is Array.length so far.
@@ -140,12 +152,17 @@ const buildProxyFunction = (
     return Object.preventExtensions(snap);
   },
 
+  proxyCache = new WeakMap<object, ProxyObject>(),
+
   versionHolder = [1, 1] as [number, number],
 
   proxyFunction = <T extends object>(initialObject: T): T => {
-    debugger;
     if (!isObject(initialObject)) {
       throw new Error('object required');
+    }
+    const found = proxyCache.get(initialObject) as T | undefined;
+    if (found) {
+      return found;
     }
     let version = versionHolder[0];
     const listeners = new Set<Listener>();
@@ -174,7 +191,6 @@ const buildProxyFunction = (
       (op, nextVersion) => {
         const newOp: Op = [...op];
         newOp[1] = [prop, ...(newOp[1] as Path)];
-        debugger
         notifyUpdate(newOp, nextVersion);
       };
     const propProxyStates = new Map<
@@ -231,7 +247,6 @@ const buildProxyFunction = (
       : Object.create(Object.getPrototypeOf(initialObject));
     const handler: ProxyHandler<T> = {
       deleteProperty(target: T, prop: string | symbol) {
-        // debugger;
         const prevValue = Reflect.get(target, prop);
         removePropListener(prop);
         const deleted = Reflect.deleteProperty(target, prop);
@@ -241,10 +256,14 @@ const buildProxyFunction = (
         return deleted;
       },
       set(target: T, prop: string | symbol, value: any, receiver: object) {
-        debugger;
         const hasPrevValue = Reflect.has(target, prop);
         const prevValue = Reflect.get(target, prop, receiver);
-        if (hasPrevValue && prevValue === value) {
+        if (
+          hasPrevValue &&
+          (objectIs(prevValue, value) ||
+            (proxyCache.has(value) &&
+              objectIs(prevValue, proxyCache.get(value))))
+        ) {
           return true;
         }
         removePropListener(prop);
@@ -266,14 +285,12 @@ const buildProxyFunction = (
               notifyUpdate(['reject', [prop], e]);
             });
         } else {
-          debugger
           if (!proxyStateMap.has(value) && canProxy(value)) {
             nextValue = proxyFunction(value);
           }
           const childProxyState =
             !refSet.has(nextValue) && proxyStateMap.get(nextValue);
           if (childProxyState) {
-            debugger
             addPropListener(prop, childProxyState);
           }
         }
@@ -283,7 +300,8 @@ const buildProxyFunction = (
       },
     };
     // debugger;
-    const proxyObject = new Proxy(baseObject, handler);
+    const proxyObject = newProxy(baseObject, handler);
+    proxyCache.set(initialObject, proxyObject);
     const proxyState: ProxyState = [
       baseObject,
       ensureVersion,
@@ -297,7 +315,6 @@ const buildProxyFunction = (
         key,
       ) as PropertyDescriptor;
       if ('value' in desc) {
-        debugger;
         proxyObject[key as keyof T] = initialObject[key as keyof T];
         // We need to delete desc.value because we already set it,
         // and delete desc.writable because we want to write it again.
@@ -313,11 +330,16 @@ const buildProxyFunction = (
     // public functions
     proxyFunction,
     // shared state
+    proxyStateMap,
     refSet,
-    // internal
+    // internal things
+    objectIs,
+    newProxy,
     canProxy,
     defaultHandlePromise,
+    snapCache,
     createSnapshot,
+    proxyCache,
     versionHolder,
   ] as const;
 

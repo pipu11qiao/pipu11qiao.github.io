@@ -59,20 +59,7 @@ export const baseConf = {
 
   npmClient: 'pnpm',
   clickToComponent: {},
-  mfsu:
-    NODE_ENV === 'development'
-      ? {
-          strategy: 'eager',
-        }
-      : false,
-  proxy: {
-    '/yapi': {
-      // 为了解决本地https启动请求yapi跨域问题
-      target: 'http://yapi.koolearn-inc.com',
-      changeOrigin: true,
-      pathRewrite: { '^/yapi': '' },
-    },
-  },
+  mfsu: false,
 };
 
 export default defineConfig(baseConf as any);
