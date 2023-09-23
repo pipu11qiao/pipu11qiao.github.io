@@ -31,7 +31,7 @@ export const baseConf = {
     LOCAL_ENV,
     FE_ENV,
   },
-  title: '流程中心',
+  title: 'valtio debug',
   hash: true,
   outputPath: 'dist',
   model: {},
