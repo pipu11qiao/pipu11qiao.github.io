@@ -6,7 +6,7 @@ const data = {
     age: 23,
   },
 };
-const getProxy = (taget, hanlder) => new Proxy(taget, hanlder);
+
 const hanlder = {
   deleteProperty(target, prop) {
     console.log(`delete prop: ${prop}`);
@@ -18,11 +18,21 @@ const hanlder = {
   },
 };
 
-const proData = new Proxy(data, hanlder);
-function proxyData(data) {
-  return;
+const getProxy = (target, hanlder) => new Proxy(target, hanlder);
+function getProxyData(data) {
+  Object.keys(data).forEach((key) => {
+    const item = data[key];
+    if (typeof item === 'object') {
+      data[key] = getProxyData(item);
+    }
+  });
+  return getProxy(data, hanlder);
 }
 
+const proData = getProxyData(data);
 proData.count = 1;
+console.log(`proData.count`, proData.count);
 delete proData.text;
+console.log(`proData.text`, proData.text);
 proData.person.age = 3;
+console.log(`proData.person.age`, proData.person.age);
