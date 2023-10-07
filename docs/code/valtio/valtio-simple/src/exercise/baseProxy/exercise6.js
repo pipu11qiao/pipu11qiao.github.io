@@ -14,7 +14,7 @@ export function proxyFunction(data) {
   const notifyUpdate = (op) => {
     console.log(`op`, op);
   };
-  const hanlders = {
+  const hanlder = {
     deleteProperty(target, prop) {
       const prevValue = Reflect.get(target, prop);
       const deleted = Reflect.deleteProperty(target, prop);
