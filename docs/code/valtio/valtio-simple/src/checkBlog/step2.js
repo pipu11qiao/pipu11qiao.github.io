@@ -1,12 +1,9 @@
-const isObject = (x) => typeof x === 'object' && x !== null;
-const proxyStateMap = new WeakMap(); // <ProxyObject, ProxyState>
-const refSet = new WeakSet();
+function isObject(data) {
+  return typeof data === 'object' && data !== null;
+}
 
-const canProxy = (x) => {
-  return typeof x === 'object' && x !== null;
-};
+const proxyStateMap = new WeakMap(); // <ProxyObject, ProxySate>
 const snapCache = new WeakMap();
-
 const createSnapshot = (target, version) => {
   const cache = snapCache.get(target);
   if (cache?.[0] === version) {
@@ -15,8 +12,6 @@ const createSnapshot = (target, version) => {
   const snap = Array.isArray(target)
     ? []
     : Object.create(Object.getPrototypeOf(target));
-  // markToTrack(snap, true); // mark to track
-
   snapCache.set(target, [version, snap]);
   Reflect.ownKeys(target).forEach((key) => {
     if (Object.getOwnPropertyDescriptor(snap, key)) {
@@ -33,7 +28,7 @@ const createSnapshot = (target, version) => {
     };
     if (proxyStateMap.has(value)) {
       const [target] = proxyStateMap.get(value);
-      desc.value = createSnapshot(target);
+      desc.value = createSnapshot(target, version);
     }
     Object.defineProperty(snap, key, desc);
   });
@@ -41,14 +36,13 @@ const createSnapshot = (target, version) => {
 };
 
 const versionHolder = [1, 1];
-
-const proxyFunction = (initialObject) => {
+export function proxyFunction(initialObject) {
   if (!isObject(initialObject)) {
-    throw new Error('object required');
+    throw new Error('need object');
   }
   let version = versionHolder[0];
   const listeners = new Set();
-  const notifyUpdate = (op, nextVersion = ++version[0]) => {
+  const notifyUpdate = (op, nextVersion = ++versionHolder[0]) => {
     if (version !== nextVersion) {
       version = nextVersion;
       listeners.forEach((listener) => listener(op));
@@ -68,12 +62,12 @@ const proxyFunction = (initialObject) => {
     }
     return version;
   };
-  const createPropListener = (prop) => (op, nextVersion) => {
+  const createPropListener = (prop) => (op) => {
     const newOp = [...op];
     newOp[1] = [prop, ...newOp[1]];
-    notifyUpdate(newOp, nextVersion);
+    notifyUpdate(newOp);
   };
-  const propProxyStates = new Map();
+  const propProxyStates = new Map(); // <prop,[proxyState,remove?]>
   const addPropListener = (prop, propProxyState) => {
     if (import.meta.env?.MODE !== 'production' && propProxyStates.has(prop)) {
       throw new Error('prop listener already exists');
@@ -95,16 +89,17 @@ const proxyFunction = (initialObject) => {
   const addListener = (listener) => {
     listeners.add(listener);
     if (listeners.size === 1) {
-      propProxyStates.forEach(([propProxyState, prevRemove], prop) => {
+      propProxyStates.forEach(([proxyState, prevRemove], prop) => {
         if (import.meta.env?.MODE !== 'production' && prevRemove) {
           throw new Error('remove already exists');
         }
-        const remove = propProxyState[3](createPropListener(prop));
-        propProxyStates.set(prop, [propProxyState, remove]);
+        const remove = proxyState[3](createPropListener(prop));
+        propProxyStates.set(prop, [proxyState, remove]);
       });
     }
     const removeListener = () => {
       listeners.delete(listener);
+
       if (listeners.size === 0) {
         propProxyStates.forEach(([propProxyState, remove], prop) => {
           if (remove) {
@@ -116,9 +111,7 @@ const proxyFunction = (initialObject) => {
     };
     return removeListener;
   };
-  const baseObject = Array.isArray(initialObject)
-    ? []
-    : Object.create(Object.getPrototypeOf(initialObject));
+
   const handler = {
     deleteProperty(target, prop) {
       const prevValue = Reflect.get(target, prop);
@@ -130,93 +123,56 @@ const proxyFunction = (initialObject) => {
       return deleted;
     },
     set(target, prop, value, receiver) {
-      const hasPrevValue = Reflect.has(target, prop);
+      const hasPrev = Reflect.has(target, prop);
       const prevValue = Reflect.get(target, prop, receiver);
-      if (hasPrevValue && prevValue === value) {
+      if (hasPrev && prevValue === value) {
         return true;
       }
       removePropListener(prop);
-      let nextValue = value;
-      if (value instanceof Promise) {
-        value
-          .then((v) => {
-            value.status = 'fulfilled';
-            value.value = v;
-            notifyUpdate(['resolve', [prop], v]);
-          })
-          .catch((e) => {
-            value.status = 'rejected';
-            value.reason = e;
-            notifyUpdate(['reject', [prop], e]);
-          });
-      } else {
-        if (!proxyStateMap.has(value) && canProxy(value)) {
-          nextValue = proxyFunction(value);
-        }
-        const childProxyState = proxyStateMap.get(nextValue);
-        if (childProxyState) {
-          addPropListener(prop, childProxyState);
-        }
+      let newValue = value;
+      if (!proxyStateMap.get(value) && isObject(value)) {
+        // 可以被代理
+        newValue = proxyFunction(value);
       }
-      Reflect.set(target, prop, nextValue, receiver);
-      notifyUpdate(['set', [prop], value, prevValue]);
-      return true;
+      const childState = proxyStateMap.get(newValue);
+      if (childState) {
+        addPropListener(prop, childState);
+      }
+      let res = Reflect.set(target, prop, newValue, receiver);
+      notifyUpdate(['set', [prop], newValue, prevValue]);
+      return res;
     },
   };
-  // debugger;
+  const baseObject = Array.isArray(initialObject)
+    ? []
+    : Object.create(Object.getPrototypeOf(initialObject));
   const proxyObject = new Proxy(baseObject, handler);
   const proxyState = [baseObject, ensureVersion, createSnapshot, addListener];
   proxyStateMap.set(proxyObject, proxyState);
+
   Reflect.ownKeys(initialObject).forEach((key) => {
     const desc = Object.getOwnPropertyDescriptor(initialObject, key);
     if ('value' in desc) {
       proxyObject[key] = initialObject[key];
-      // We need to delete desc.value because we already set it,
-      // and delete desc.writable because we want to write it again.
       delete desc.value;
       delete desc.writable;
     }
     Object.defineProperty(baseObject, key, desc);
   });
   return proxyObject;
-};
-const buildProxyFunction = () => {
-  return [
-    // public functions
-    proxyFunction,
-    // internal
-  ];
-};
-
-const [defaultProxyFunction] = buildProxyFunction();
-
-export function proxy(initialObject) {
-  return defaultProxyFunction(initialObject);
 }
 
-export function subscribe(proxyObject, callback, notifyInSync) {
+export function subscribe(proxyObject, callback) {
   const proxyState = proxyStateMap.get(proxyObject);
   if (import.meta.env?.MODE !== 'production' && !proxyState) {
     console.warn('Please use proxy object');
   }
-  let promise;
   const ops = [];
-  const addListener = proxyState;
+  const addListener = proxyState[3];
   let isListenerActive = false;
   const listener = (op) => {
     ops.push(op);
-    if (notifyInSync) {
-      callback(ops.splice(0));
-      return;
-    }
-    if (!promise) {
-      promise = Promise.resolve().then(() => {
-        promise = undefined;
-        if (isListenerActive) {
-          callback(ops.splice(0));
-        }
-      });
-    }
+    callback(ops.splice(0));
   };
   const removeListener = addListener(listener);
   isListenerActive = true;
@@ -225,6 +181,7 @@ export function subscribe(proxyObject, callback, notifyInSync) {
     removeListener();
   };
 }
+
 export function snapshot(proxyObject) {
   const proxyState = proxyStateMap.get(proxyObject);
   if (import.meta.env?.MODE !== 'production' && !proxyState) {
@@ -233,3 +190,29 @@ export function snapshot(proxyObject) {
   const [target, ensureVersion, createSnapshot] = proxyState;
   return createSnapshot(target, ensureVersion());
 }
+
+const data = {
+  count: 0,
+  text: 'hello',
+  person: {
+    name: 'xioahong',
+    age: 23,
+    box: {
+      width: 3,
+      heigth: 4,
+    },
+  },
+};
+const proData = proxyFunction(data);
+
+const unscribe = subscribe(proData, (op) => {
+  const snap = snapshot(proData);
+  console.log(`op`, JSON.stringify(op));
+  console.log(`snap`, JSON.stringify(snap));
+});
+proData.count = 1;
+// delete proData.text;
+proData.person.age = 3;
+// unscribe();
+// proData.person.box.width = 5;
+export default {};
