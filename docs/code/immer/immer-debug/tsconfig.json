@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "strict": true,
+    "declaration": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "noUnusedLocals": false,
+    "jsx": "react",
+    "baseUrl": "./",
+    "declarationMap": true,
+    "noEmit": true,
+    "paths": {
+      "@@/*": [".dumi/tmp/*"],
+      "immer-debug": ["src"],
+      "immer-debug/*": ["src/*", "*"]
+    }
+  },
+  "include": [".dumirc.ts", "src/**/*"]
+}
