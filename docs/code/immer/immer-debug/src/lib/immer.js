@@ -45,9 +45,6 @@ function revoke(draft) {
   draft[DRAFT_STATE].revoke();
 }
 
-// Do nothing before being finalized.
-export function willFinalize() {}
-
 export function createProxy(base, parent) {
   const scope = parent ? parent.scope : ImmerScope.current;
   const state = {

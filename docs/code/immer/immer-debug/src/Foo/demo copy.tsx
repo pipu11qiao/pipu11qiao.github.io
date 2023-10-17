@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { produce } from '../lib/immer';
+import { produce } from '../lib/immer.base';
 
 const TodoList = () => {
   const [todos, setTodos] = useState([
