@@ -281,7 +281,6 @@ export class Immer {
       root = state.copy;
     }
 
-    const needPatches = !!rootPath && !!scope.patches;
     const finalizeProperty = (prop, value, parent) => {
       // debugger;
       if (value === parent) {
@@ -293,9 +292,7 @@ export class Immer {
 
       if (isDraft(value)) {
         const path =
-          isDraftProp && needPatches && !state.assigned[prop]
-            ? rootPath.concat(prop)
-            : null;
+          isDraftProp && !state.assigned[prop] ? rootPath.concat(prop) : null;
 
         // Drafts owned by `scope` are finalized here.
         // eslint-disable-next-line no-param-reassign
